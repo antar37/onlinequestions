@@ -12,20 +12,13 @@
       content="free web-based question voting, interactive Q&A plattform, free temporary online group chat, real-time questions, online audience questions"
     />
     <meta property="og:type" content="article" />
-    <meta
-      property="og:title"
-      content="Preguntas Conexión Vertical: Preguntas Anónimas"
-    />
+    <meta property="og:title" content="Anonymous questions" />
     <meta
       property="og:description"
       content="Post and vote for questions or messages using mobile phones or other internet devices during large lectures, classes, meetups, or conferences: free-of-charge, anonymous, ad-free, easy-to-use."
     />
-    <meta
-      property="og:image"
-      content="https://onlinequestions.org/linkimg.jpg"
-    />
 
-    <title>Preguntas Conexión Vertical: Preguntas Anónimas</title>
+    <title>Anonymous Questions</title>
     <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
 
     <!-- include external libraries (start) -->
@@ -66,12 +59,13 @@
             title="Audience members can enter an event number and press the enter button"
           >
             <div class="myfieldHeader">
-              <span>Para la Audiencia</span>
+              <span data-content="for_audience"></span>
             </div>
             <div class="fieldPad">
               <div class="larger">
-                <div>
-                  Nombre de Evento:<br />
+                <div data-content="event-name">
+                  <span data-content="event-name"></span>
+                  <br />
                   <input
                     id="eventNumber"
                     class="smallTopMargin myNumber"
@@ -79,7 +73,12 @@
                     tabindex="1"
                   />
                 </div>
-                <div id="enter" class="largeTopMargin" tabindex="2">Entrar</div>
+                <div
+                  id="enter"
+                  class="largeTopMargin"
+                  tabindex="2"
+                  data-content="enter"
+                ></div>
               </div>
               <div id="enterError" class="largeTopMargin errorMsg"></div>
             </div>
@@ -90,7 +89,7 @@
             title="Speakers can create or re-open an event here"
           >
             <div class="myfieldHeader">
-              <span>Para el Orador</span>
+              <span data-content="for_speaker"></span>
             </div>
             <div class="fieldPad larger">
               <div
@@ -98,17 +97,15 @@
                 style="font-size: 0.75em"
                 title="Speakers press this button to create a new or open an event"
                 tabindex="3"
-              >
-                Admon
-              </div>
+                data-content="admin"
+              ></div>
               <div
                 class="help"
                 style="font-size: 0.75em"
                 title="Show help, terms of use, privacy policy, and imprint"
                 tabindex="4"
-              >
-                Acerca de
-              </div>
+                data-content="about"
+              ></div>
             </div>
           </div>
         </div>
@@ -125,13 +122,13 @@
             title="Speakers can create or re-open an event here"
           >
             <div class="myfieldHeader">
-              <span>Administrador: Manejar Evento</span>
+              <span data-content="admin_header"></span>
             </div>
 
             <div class="fieldPad">
               <div class="bitLarger">
                 <div>
-                  Crea o abre un evento con un nombre único de evento
+                  <span data-content="event_name_description"></span>
                   <br />
                   <input
                     id="eventNumberCreate"
@@ -141,9 +138,7 @@
                   />
                 </div>
                 <div class="largeTopMargin">
-                  Clave secreto que te identifica como administrador de este
-                  evento<br />
-                  (no comparta con miembros de la audiencia):<br />
+                  <span data-content="event_password_description"></span>
                   <input
                     id="adminPasswordCreate"
                     class="smallTopMargin myNumber"
@@ -160,33 +155,29 @@
                   style="font-size: 0.75em"
                   title="Create a new event"
                   tabindex="7"
-                >
-                  Crear
-                </div>
+                  data-content="admin_create_button"
+                ></div>
                 <div
                   id="open"
                   style="font-size: 0.75em"
                   title="Open an existing event"
                   tabindex="8"
-                >
-                  Abrir
-                </div>
+                  data-content="admin_open_button"
+                ></div>
                 <div
                   class="help"
                   style="font-size: 0.75em"
                   title="Show help, terms of use, privacy policy, and imprint"
                   tabindex="9"
-                >
-                  Ayuda
-                </div>
+                  data-content="admin_help_button"
+                ></div>
                 <div
                   class="back"
                   style="font-size: 0.75em"
                   title="Go back to entry page"
                   tabindex="10"
-                >
-                  Regresar
-                </div>
+                  data-content="admin_return_button"
+                ></div>
               </div>
             </div>
           </div>
@@ -361,9 +352,8 @@
           <span
             class="ui-icon ui-icon-alert"
             style="float: left; margin: 12px 12px 20px 0"
-          ></span
-          >This command deletes all questions in this event. This can not be
-          undone. Are you sure?
+          ></span data-content="delete_all_questions_question"
+          >
         </p>
       </div>
 
@@ -386,7 +376,7 @@
         <div id="pageEventData" class="hidden">
           <div id="studentTools" class="bitLarger">
             <select id="studentSortingSelect">
-              <option value="0" selected>Ordenar por Votos</option>
+              <option value="0" selected data-content="order_by_vote"></option>
               <option value="1">Ordenar por más Nueva</option>
               <option value="2">Ordenar por Color</option>
               <option value="3">Ordenar por Usuario</option>
@@ -397,7 +387,7 @@
             <div id="adminTools" class="hidden">
               <div id="eventNoHeader">
                 <span class="mySpecialTitle"
-                  >Preguntas Conexión Vertical: Nombre de Evento [<span
+                  ><span data-content="event_title"></span> [<span
                     id="showEventNo"
                     >XXXX</span
                   >]</span
