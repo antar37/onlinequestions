@@ -1,0 +1,102 @@
+{
+  "meta": {
+    "lang": "es",
+    "name": "Español"
+  },
+  "common": {
+    "room_id": "ID de Sala",
+    "copy_room_url": "Copiar URL de Sala",
+    "create_new_room": "Crear Nueva Sala",
+    "submit": "Enviar",
+    "submitting": "Enviando...",
+    "unknown": "Desconocido",
+    "close": "Cerrar",
+    "cancel": "Cancelar",
+    "language": "Idioma",
+    "presentation_mode": "Modo Presentación"
+  },
+  "index": {
+    "title_suffix": "Preguntas en Línea",
+    "ask_question": "Hacer una Pregunta",
+    "question_placeholder": "Escribe tu pregunta aquí...",
+    "submit_question": "Enviar Pregunta",
+    "questions": "Preguntas",
+    "untitled_room": "Sala Sin Título"
+  },
+  "create_room": {
+    "title": "Preguntas en Línea - Crear o Acceder a Sala",
+    "heading": "Preguntas en Línea",
+    "subtitle": "Salas de preguntas anónimas - sin registro requerido",
+    "create_new_room": "Crear Nueva Sala",
+    "create_new_room_link": "Crear una nueva sala",
+    "room_name_placeholder": "Ingresa el nombre de la sala (ej., Preguntas de Matemáticas)...",
+    "room_id_placeholder": "ID personalizado de sala (opcional, ej., matematicas)...",
+    "room_id_hint": "Deja vacío para ID auto-generado. Usa solo letras minúsculas, números y guiones.",
+    "room_id_title": "Solo se permiten letras, números y guiones",
+    "password_placeholder": "Contraseña de administrador (opcional)...",
+    "password_hint": "Establece una contraseña para habilitar funciones de administrador (eliminar preguntas, marcar como respondidas, cambiar colores)",
+    "create_room_button": "Crear Sala",
+    "access_existing_room": "Acceder a Sala Existente",
+    "access_room_placeholder": "Ingresa el ID de la sala...",
+    "go_to_room": "Ir a Sala",
+    "how_it_works": "Cómo funciona",
+    "how_it_works_1": "Crea una sala con un nombre personalizado e ID opcional",
+    "how_it_works_2": "Comparte la URL de la sala con los participantes",
+    "how_it_works_3": "Cualquiera puede hacer preguntas de forma anónima",
+    "how_it_works_4": "No se requiere registro ni inicio de sesión"
+  },
+  "admin": {
+    "enter_password": "Ingresar Contraseña de Administrador",
+    "password_placeholder": "Ingresa la contraseña de la sala...",
+    "authenticate": "Autenticar",
+    "delete_question": "Eliminar Pregunta",
+    "mark_answered": "Marcar como Respondida",
+    "mark_unanswered": "Marcar como No Respondida",
+    "change_color": "Cambiar Color",
+    "custom_color": "Personalizado",
+    "answered": "Respondida",
+    "invalid_password": "Contraseña inválida",
+    "open_presentation_mode": "Abrir en Modo Presentación"
+  },
+  "presentation": {
+    "title": "Modo Presentación",
+    "previous_question": "Pregunta Anterior",
+    "next_question": "Pregunta Siguiente",
+    "exit": "Salir del Modo Presentación",
+    "votes": "votos",
+    "no_questions": "No Hay Preguntas Disponibles",
+    "no_questions_desc": "Aún no hay preguntas en esta sala.",
+    "back_to_room": "Volver a la Sala"
+  },
+  "voting": {
+    "upvote": "Votar a favor",
+    "downvote": "Votar en contra"
+  },
+  "errors": {
+    "room_name_empty": "El nombre de la sala no puede estar vacío",
+    "room_not_found": "Sala no encontrada. Por favor verifica el ID de la sala e intenta de nuevo.",
+    "room_id_too_short": "El ID de la sala debe tener al menos {min} caracteres",
+    "room_id_exists": "El ID de la sala ya existe. Por favor elige uno diferente.",
+    "failed_to_create_room": "Error al crear la sala",
+    "failed_to_submit": "Error al enviar la pregunta. Por favor intenta de nuevo.",
+    "question_empty": "Por favor ingresa una pregunta",
+    "question_submit_error": "Error: {error}",
+    "failed_to_copy_url": "Error al copiar la URL",
+    "vote_failed": "Error al votar. Por favor intenta de nuevo.",
+    "already_voted": "Ya has votado en esta pregunta. Puedes cambiar tu voto haciendo clic en el botón opuesto.",
+    "room_expired": "Esta sala ha expirado y ha sido eliminada. Las salas expiran después de 6 meses de inactividad."
+  },
+  "success": {
+    "room_url_copied": "¡URL de la sala copiada al portapapeles!",
+    "question_submitted": "¡Pregunta enviada exitosamente!"
+  },
+  "notifications": {
+    "room_url_copied": "¡URL de la sala copiada al portapapeles!",
+    "failed_to_copy_url": "Error al copiar la URL",
+    "question_submitted": "¡Pregunta enviada exitosamente!",
+    "please_enter_question": "Por favor ingresa una pregunta",
+    "error_submit_question": "Error: {error}",
+    "failed_submit_question": "Error al enviar la pregunta. Por favor intenta de nuevo."
+  }
+}
+

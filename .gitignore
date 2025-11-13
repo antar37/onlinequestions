@@ -1,0 +1,17 @@
+# Ignore room data and events
+rooms/
+events/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+

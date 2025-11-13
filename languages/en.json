@@ -1,0 +1,102 @@
+{
+  "meta": {
+    "lang": "en",
+    "name": "English"
+  },
+  "common": {
+    "room_id": "Room ID",
+    "copy_room_url": "Copy Room URL",
+    "create_new_room": "Create New Room",
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "unknown": "Unknown",
+    "close": "Close",
+    "cancel": "Cancel",
+    "language": "Language",
+    "presentation_mode": "Presentation Mode"
+  },
+  "index": {
+    "title_suffix": "Online Questions",
+    "ask_question": "Ask a Question",
+    "question_placeholder": "Type your question here...",
+    "submit_question": "Submit Question",
+    "questions": "Questions",
+    "untitled_room": "Untitled Room"
+  },
+  "create_room": {
+    "title": "Online Questions - Create or Access Room",
+    "heading": "Online Questions",
+    "subtitle": "Anonymous question rooms - no sign-in required",
+    "create_new_room": "Create New Room",
+    "create_new_room_link": "Create a new room",
+    "room_name_placeholder": "Enter room name (e.g., Math Class Q&A)...",
+    "room_id_placeholder": "Custom room ID (optional, e.g., math-class)...",
+    "room_id_hint": "Leave empty for auto-generated ID. Use lowercase letters, numbers, and hyphens only.",
+    "room_id_title": "Only letters, numbers, and hyphens allowed",
+    "password_placeholder": "Admin password (optional)...",
+    "password_hint": "Set a password to enable admin features (delete questions, mark as answered, change colors)",
+    "create_room_button": "Create Room",
+    "access_existing_room": "Access Existing Room",
+    "access_room_placeholder": "Enter room ID...",
+    "go_to_room": "Go to Room",
+    "how_it_works": "How it works",
+    "how_it_works_1": "Create a room with a custom name and optional custom ID",
+    "how_it_works_2": "Share the room URL with participants",
+    "how_it_works_3": "Anyone can ask questions anonymously",
+    "how_it_works_4": "No sign-in or registration required"
+  },
+  "admin": {
+    "enter_password": "Enter Admin Password",
+    "password_placeholder": "Enter room password...",
+    "authenticate": "Authenticate",
+    "delete_question": "Delete Question",
+    "mark_answered": "Mark as Answered",
+    "mark_unanswered": "Mark as Unanswered",
+    "change_color": "Change Color",
+    "custom_color": "Custom",
+    "answered": "Answered",
+    "invalid_password": "Invalid password",
+    "open_presentation_mode": "Open in Presentation Mode"
+  },
+  "presentation": {
+    "title": "Presentation Mode",
+    "previous_question": "Previous Question",
+    "next_question": "Next Question",
+    "exit": "Exit Presentation Mode",
+    "votes": "votes",
+    "no_questions": "No Questions Available",
+    "no_questions_desc": "There are no questions in this room yet.",
+    "back_to_room": "Back to Room"
+  },
+  "voting": {
+    "upvote": "Upvote",
+    "downvote": "Downvote"
+  },
+  "errors": {
+    "room_name_empty": "Room name cannot be empty",
+    "room_not_found": "Room not found. Please check the room ID and try again.",
+    "room_id_too_short": "Room ID must be at least {min} characters",
+    "room_id_exists": "Room ID already exists. Please choose a different one.",
+    "failed_to_create_room": "Failed to create room",
+    "failed_to_submit": "Failed to submit question. Please try again.",
+    "question_empty": "Please enter a question",
+    "question_submit_error": "Error: {error}",
+    "failed_to_copy_url": "Failed to copy URL",
+    "vote_failed": "Failed to vote. Please try again.",
+    "already_voted": "You've already voted on this question. You can change your vote by clicking the opposite button.",
+    "room_expired": "This room has expired and has been deleted. Rooms expire after 6 months of inactivity."
+  },
+  "success": {
+    "room_url_copied": "Room URL copied to clipboard!",
+    "question_submitted": "Question submitted successfully!"
+  },
+  "notifications": {
+    "room_url_copied": "Room URL copied to clipboard!",
+    "failed_to_copy_url": "Failed to copy URL",
+    "question_submitted": "Question submitted successfully!",
+    "please_enter_question": "Please enter a question",
+    "error_submit_question": "Error: {error}",
+    "failed_submit_question": "Failed to submit question. Please try again."
+  }
+}
+
