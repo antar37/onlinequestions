@@ -4,6 +4,12 @@
   "main": "cloudflare/worker.js",
   "compatibility_date": "2026-09-13",
   "workers_dev": true,
+  "routes": [
+    {
+      "pattern": "preguntas.icv.mx",
+      "custom_domain": true
+    }
+  ],
   "kv_namespaces": [
     {
       "binding": "ONLINEQUESTIONS_ROOMS",
