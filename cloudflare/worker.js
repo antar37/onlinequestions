@@ -27,7 +27,7 @@ export default {
       if (pathname === '/') {
         const roomId = url.searchParams.get('room');
         if (roomId) return renderRoom(request, env, sanitizeRoomId(roomId));
-        return htmlResponse(renderHome());
+        return htmlResponse(renderHome(request));
       }
 
       return htmlResponse(renderNotFound(), 404);
@@ -387,87 +387,208 @@ async function adminAction(request, env) {
 
 async function renderRoom(request, env, roomId) {
   const room = await loadRoom(env, roomId);
-  if (!room) return htmlResponse(renderNotFound(`Room “${escapeHtml(roomId)}” was not found.`), 404);
+  if (!room) return htmlResponse(renderNotFound(request, translate(getLang(request), 'roomNotFound', { roomId: escapeHtml(roomId) })), 404);
   const { userId, setCookie } = getOrCreateUserCookie(request);
   const admin = await isAdmin(request, room);
   await saveRoom(env, room);
   const data = publicRoom(room, userId, admin);
-  return htmlResponse(roomHtml(data), 200, setCookie ? { 'Set-Cookie': setCookie } : {});
+  return htmlResponse(roomHtml(request, data), 200, setCookie ? { 'Set-Cookie': setCookie } : {});
 }
 
-function renderHome() {
-  return pageShell('Online Questions', `
+const TRANSLATIONS = {
+  en: {
+    appTitle: 'Online Questions',
+    tagline: 'Live Q&A',
+    intro: 'Create a room, share the link, collect questions, vote, and moderate with a remembered admin login.',
+    roomName: 'Room name',
+    optionalRoomId: 'Optional custom room ID',
+    adminPasswordOptional: 'Admin password (optional)',
+    createRoom: 'Create room',
+    accessRoom: 'Access a room',
+    roomId: 'Room ID',
+    go: 'Go',
+    room: 'Room',
+    adminLogin: 'Admin login',
+    adminRemembered: 'Admin remembered',
+    copyLink: 'Copy link',
+    askQuestion: 'Ask a question…',
+    submitQuestion: 'Submit question',
+    questions: 'Questions',
+    live: 'Live',
+    password: 'Admin password',
+    cancel: 'Cancel',
+    logIn: 'Log in',
+    notFoundTitle: 'Not found',
+    notFoundMessage: 'That page was not found.',
+    createOrAccess: 'Create or access a room',
+    answered: 'Answered',
+    markAnswered: 'Mark answered',
+    markUnanswered: 'Mark unanswered',
+    color: 'Color',
+    delete: 'Delete',
+    noQuestions: 'No questions yet.',
+    copied: 'Copied',
+    offline: 'Offline',
+    error: 'Error',
+    failed: 'Failed',
+    invalidPassword: 'Invalid password',
+    deleteConfirm: 'Delete this question?',
+    roomNotFound: 'Room “{roomId}” was not found.',
+  },
+  es: {
+    appTitle: 'Preguntas en línea',
+    tagline: 'Preguntas y respuestas en vivo',
+    intro: 'Crea una sala, comparte el enlace, recibe preguntas, vota y modera con un inicio de administrador recordado.',
+    roomName: 'Nombre de la sala',
+    optionalRoomId: 'ID personalizado opcional',
+    adminPasswordOptional: 'Contraseña de administrador (opcional)',
+    createRoom: 'Crear sala',
+    accessRoom: 'Entrar a una sala',
+    roomId: 'ID de sala',
+    go: 'Entrar',
+    room: 'Sala',
+    adminLogin: 'Entrar como administrador',
+    adminRemembered: 'Administrador recordado',
+    copyLink: 'Copiar enlace',
+    askQuestion: 'Haz una pregunta…',
+    submitQuestion: 'Enviar pregunta',
+    questions: 'Preguntas',
+    live: 'En vivo',
+    password: 'Contraseña de administrador',
+    cancel: 'Cancelar',
+    logIn: 'Entrar',
+    notFoundTitle: 'No encontrado',
+    notFoundMessage: 'No se encontró esa página.',
+    createOrAccess: 'Crear o entrar a una sala',
+    answered: 'Respondida',
+    markAnswered: 'Marcar respondida',
+    markUnanswered: 'Marcar no respondida',
+    color: 'Color',
+    delete: 'Eliminar',
+    noQuestions: 'Todavía no hay preguntas.',
+    copied: 'Copiado',
+    offline: 'Sin conexión',
+    error: 'Error',
+    failed: 'Falló',
+    invalidPassword: 'Contraseña inválida',
+    deleteConfirm: '¿Eliminar esta pregunta?',
+    roomNotFound: 'No se encontró la sala “{roomId}”.',
+  },
+};
+
+function getLang(request) {
+  const url = new URL(request.url);
+  const queryLang = url.searchParams.get('lang');
+  if (queryLang === 'en' || queryLang === 'es') return queryLang;
+
+  const cookieLang = getCookies(request).oq_lang;
+  if (cookieLang === 'en' || cookieLang === 'es') return cookieLang;
+
+  const accepted = request.headers.get('Accept-Language') || '';
+  return accepted.toLowerCase().startsWith('es') ? 'es' : 'en';
+}
+
+function translate(lang, key, replacements = {}) {
+  let value = (TRANSLATIONS[lang] && TRANSLATIONS[lang][key]) || TRANSLATIONS.en[key] || key;
+  for (const [name, replacement] of Object.entries(replacements)) {
+    value = value.replace(`{${name}}`, replacement);
+  }
+  return value;
+}
+
+function languageSwitcher(lang) {
+  return `<nav class="language-switcher" aria-label="Language"><a class="${lang === 'en' ? 'active' : ''}" href="${languageHref('en')}">EN</a><a class="${lang === 'es' ? 'active' : ''}" href="${languageHref('es')}">ES</a></nav>`;
+}
+
+function languageHref(lang) {
+  return `?lang=${lang}`;
+}
+
+function renderHome(request) {
+  const lang = getLang(request);
+  const tr = (key, replacements) => translate(lang, key, replacements);
+  return pageShell(tr('appTitle'), lang, `
     <section class="card hero">
-      <p class="eyebrow">Cloudflare version</p>
-      <h1>Online Questions</h1>
-      <p>Create a room, share the link, collect questions, vote, and moderate with a remembered admin login.</p>
+      <div class="hero-top">
+        <p class="eyebrow">${escapeHtml(tr('tagline'))}</p>
+        ${languageSwitcher(lang)}
+      </div>
+      <h1>${escapeHtml(tr('appTitle'))}</h1>
+      <p>${escapeHtml(tr('intro'))}</p>
       <form id="create-form" class="stack">
-        <input id="room-name" required maxlength="120" placeholder="Room name" />
-        <input id="room-id" maxlength="50" pattern="[a-zA-Z0-9-]+" placeholder="Optional custom room ID" />
-        <input id="room-password" type="password" placeholder="Admin password (optional)" />
-        <button type="submit">Create room</button>
+        <input id="room-name" required maxlength="120" placeholder="${escapeHtml(tr('roomName'))}" />
+        <input id="room-id" maxlength="50" pattern="[a-zA-Z0-9-]+" placeholder="${escapeHtml(tr('optionalRoomId'))}" />
+        <input id="room-password" type="password" placeholder="${escapeHtml(tr('adminPasswordOptional'))}" />
+        <button type="submit">${escapeHtml(tr('createRoom'))}</button>
       </form>
     </section>
     <section class="card">
-      <h2>Access a room</h2>
+      <h2>${escapeHtml(tr('accessRoom'))}</h2>
       <form id="access-form" class="inline-form">
-        <input id="access-room" required placeholder="Room ID" />
-        <button type="submit">Go</button>
+        <input id="access-room" required placeholder="${escapeHtml(tr('roomId'))}" />
+        <button type="submit">${escapeHtml(tr('go'))}</button>
       </form>
     </section>
-    <script>${homeScript()}</script>
+    <script>${homeScript(lang)}</script>
   `);
 }
 
-function roomHtml(room) {
-  return pageShell(room.name, `
+function roomHtml(request, room) {
+  const lang = getLang(request);
+  const tr = (key, replacements) => translate(lang, key, replacements);
+  return pageShell(room.name, lang, `
     <header class="room-header">
       <div>
-        <p class="eyebrow">Room ${escapeHtml(room.id)}</p>
+        <p class="eyebrow">${escapeHtml(tr('room'))} ${escapeHtml(room.id)}</p>
         <h1>${escapeHtml(room.name)}</h1>
       </div>
       <div class="header-actions">
-        ${room.has_password && !room.is_admin ? '<button id="admin-login-open" class="secondary">Admin login</button>' : ''}
-        ${room.is_admin ? '<span class="admin-pill">Admin remembered</span>' : ''}
-        <button id="copy-link" class="secondary">Copy link</button>
+        ${languageSwitcher(lang)}
+        ${room.has_password && !room.is_admin ? `<button id="admin-login-open" class="secondary">${escapeHtml(tr('adminLogin'))}</button>` : ''}
+        ${room.is_admin ? `<span class="admin-pill">${escapeHtml(tr('adminRemembered'))}</span>` : ''}
+        <button id="copy-link" class="secondary">${escapeHtml(tr('copyLink'))}</button>
       </div>
     </header>
 
     <section class="card">
       <form id="question-form" class="question-form">
-        <textarea id="question-text" required maxlength="2000" placeholder="Ask a question…"></textarea>
-        <button type="submit">Submit question</button>
+        <textarea id="question-text" required maxlength="2000" placeholder="${escapeHtml(tr('askQuestion'))}"></textarea>
+        <button type="submit">${escapeHtml(tr('submitQuestion'))}</button>
       </form>
     </section>
 
     <section class="questions-section">
-      <div class="section-title"><h2>Questions</h2><span id="status">Live</span></div>
+      <div class="section-title"><h2>${escapeHtml(tr('questions'))}</h2><span id="status">${escapeHtml(tr('live'))}</span></div>
       <div id="questions"></div>
     </section>
 
     <dialog id="admin-dialog">
       <form id="admin-login-form" method="dialog" class="stack">
-        <h2>Admin login</h2>
-        <input id="admin-password" type="password" required placeholder="Admin password" />
+        <h2>${escapeHtml(tr('adminLogin'))}</h2>
+        <input id="admin-password" type="password" required placeholder="${escapeHtml(tr('password'))}" />
         <div class="modal-actions">
-          <button type="button" id="admin-cancel" class="secondary">Cancel</button>
-          <button type="submit">Log in</button>
+          <button type="button" id="admin-cancel" class="secondary">${escapeHtml(tr('cancel'))}</button>
+          <button type="submit">${escapeHtml(tr('logIn'))}</button>
         </div>
       </form>
     </dialog>
 
     <script id="room-data" type="application/json">${escapeHtml(JSON.stringify(room))}</script>
+    <script id="i18n-data" type="application/json">${escapeHtml(JSON.stringify(TRANSLATIONS[lang] || TRANSLATIONS.en))}</script>
     <script>${roomScript()}</script>
   `);
 }
 
-function renderNotFound(message = 'That page was not found.') {
-  return pageShell('Not found', `<section class="card"><h1>Not found</h1><p>${message}</p><p><a href="/">Create or access a room</a></p></section>`);
+function renderNotFound(request, message = null) {
+  const lang = getLang(request);
+  const tr = (key) => translate(lang, key);
+  const body = message || tr('notFoundMessage');
+  return pageShell(tr('notFoundTitle'), lang, `<section class="card"><div class="hero-top">${languageSwitcher(lang)}</div><h1>${escapeHtml(tr('notFoundTitle'))}</h1><p>${body}</p><p><a href="/">${escapeHtml(tr('createOrAccess'))}</a></p></section>`);
 }
 
-function pageShell(title, content) {
+function pageShell(title, lang, content) {
   return `<!doctype html>
-<html lang="en">
+<html lang="${escapeHtml(lang)}">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -475,6 +596,7 @@ function pageShell(title, content) {
   <style>${styles()}</style>
 </head>
 <body>
+  <script>document.cookie='oq_lang='+encodeURIComponent('${escapeHtml(lang)}')+'; Path=/; Max-Age=15552000; SameSite=Lax; Secure';</script>
   <main class="container">${content}</main>
 </body>
 </html>`;
@@ -486,12 +608,13 @@ function escapeHtml(value) {
 
 function styles() {
   return `
-:root{color-scheme:dark;--bg:#070816;--card:#111427;--muted:#9ba3b4;--text:#f7f8fb;--line:#262b44;--accent:#7c3aed;--accent2:#06b6d4;--danger:#ef4444;--ok:#22c55e}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top left,#20114d,transparent 36rem),linear-gradient(135deg,#060713,#10142a);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.container{width:min(980px,92vw);margin:0 auto;padding:48px 0}.card{background:rgba(17,20,39,.84);border:1px solid var(--line);box-shadow:0 24px 80px rgba(0,0,0,.35);border-radius:24px;padding:24px;margin:18px 0}.hero{padding:36px}.eyebrow{text-transform:uppercase;letter-spacing:.14em;color:var(--accent2);font-size:.76rem;font-weight:800}h1{font-size:clamp(2rem,8vw,4.5rem);line-height:.95;margin:.2em 0}h2{margin:0 0 12px}p{color:var(--muted);line-height:1.6}a{color:#93c5fd}input,textarea{width:100%;border:1px solid var(--line);background:#090b18;color:var(--text);border-radius:14px;padding:14px 16px;font:inherit}textarea{min-height:110px;resize:vertical}button{border:0;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:13px 18px;font-weight:800;cursor:pointer}button.secondary{background:#1b2038;color:#dbeafe;border:1px solid var(--line)}button.danger{background:rgba(239,68,68,.18);color:#fecaca;border:1px solid rgba(239,68,68,.35)}button:disabled{opacity:.55;cursor:not-allowed}.stack{display:grid;gap:12px}.inline-form{display:grid;grid-template-columns:1fr auto;gap:12px}.room-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px}.header-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.admin-pill{display:inline-flex;align-items:center;border:1px solid rgba(34,197,94,.35);color:#bbf7d0;background:rgba(34,197,94,.12);border-radius:999px;padding:10px 14px;font-weight:800}.question-form{display:grid;gap:12px}.section-title{display:flex;align-items:center;justify-content:space-between;margin:28px 0 14px}.section-title span{color:var(--muted);font-size:.9rem}.question{display:grid;grid-template-columns:auto 1fr;gap:16px;border:1px solid var(--line);background:rgba(17,20,39,.78);border-left:5px solid #7c3aed;border-radius:20px;padding:18px;margin:12px 0}.question.answered{opacity:.68}.votes{display:grid;gap:8px;align-content:start;justify-items:center}.vote-count{font-weight:900}.question-text{white-space:pre-wrap;line-height:1.55}.meta{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-top:12px;color:var(--muted);font-size:.86rem}.admin-controls{display:flex;gap:8px;flex-wrap:wrap}.answered-badge{display:inline-flex;margin-bottom:8px;border-radius:999px;background:rgba(34,197,94,.12);color:#bbf7d0;border:1px solid rgba(34,197,94,.35);padding:4px 8px;font-size:.78rem;font-weight:800}dialog{border:1px solid var(--line);border-radius:24px;background:var(--card);color:var(--text);padding:24px;max-width:420px;width:92vw}dialog::backdrop{background:rgba(0,0,0,.65)}.modal-actions{display:flex;justify-content:flex-end;gap:10px}.empty{color:var(--muted);border:1px dashed var(--line);border-radius:18px;padding:28px;text-align:center}@media(max-width:720px){.room-header,.meta{display:grid}.inline-form{grid-template-columns:1fr}.header-actions{justify-content:flex-start}.question{grid-template-columns:1fr}.votes{display:flex}}
+:root{color-scheme:dark;--bg:#070816;--card:#111427;--muted:#9ba3b4;--text:#f7f8fb;--line:#262b44;--accent:#7c3aed;--accent2:#06b6d4;--danger:#ef4444;--ok:#22c55e}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top left,#20114d,transparent 36rem),linear-gradient(135deg,#060713,#10142a);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.container{width:min(980px,92vw);margin:0 auto;padding:48px 0}.card{background:rgba(17,20,39,.84);border:1px solid var(--line);box-shadow:0 24px 80px rgba(0,0,0,.35);border-radius:24px;padding:24px;margin:18px 0}.hero{padding:36px}.hero-top{display:flex;align-items:center;justify-content:space-between;gap:12px}.language-switcher{display:inline-flex;gap:6px;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:999px;padding:4px}.language-switcher a{color:#cbd5e1;text-decoration:none;border-radius:999px;padding:6px 10px;font-weight:900;font-size:.82rem}.language-switcher a.active{background:#fff;color:#111827}.eyebrow{text-transform:uppercase;letter-spacing:.14em;color:var(--accent2);font-size:.76rem;font-weight:800}h1{font-size:clamp(2rem,8vw,4.5rem);line-height:.95;margin:.2em 0}h2{margin:0 0 12px}p{color:var(--muted);line-height:1.6}a{color:#93c5fd}input,textarea{width:100%;border:1px solid var(--line);background:#090b18;color:var(--text);border-radius:14px;padding:14px 16px;font:inherit}textarea{min-height:110px;resize:vertical}button{border:0;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:13px 18px;font-weight:800;cursor:pointer}button.secondary{background:#1b2038;color:#dbeafe;border:1px solid var(--line)}button.danger{background:rgba(239,68,68,.18);color:#fecaca;border:1px solid rgba(239,68,68,.35)}button:disabled{opacity:.55;cursor:not-allowed}.stack{display:grid;gap:12px}.inline-form{display:grid;grid-template-columns:1fr auto;gap:12px}.room-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px}.header-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.admin-pill{display:inline-flex;align-items:center;border:1px solid rgba(34,197,94,.35);color:#bbf7d0;background:rgba(34,197,94,.12);border-radius:999px;padding:10px 14px;font-weight:800}.question-form{display:grid;gap:12px}.section-title{display:flex;align-items:center;justify-content:space-between;margin:28px 0 14px}.section-title span{color:var(--muted);font-size:.9rem}.question{display:grid;grid-template-columns:auto 1fr;gap:16px;border:1px solid var(--line);background:rgba(17,20,39,.78);border-left:5px solid #7c3aed;border-radius:20px;padding:18px;margin:12px 0}.question.answered{opacity:.68}.votes{display:grid;gap:8px;align-content:start;justify-items:center}.vote-count{font-weight:900}.question-text{white-space:pre-wrap;line-height:1.55}.meta{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-top:12px;color:var(--muted);font-size:.86rem}.admin-controls{display:flex;gap:8px;flex-wrap:wrap}.answered-badge{display:inline-flex;margin-bottom:8px;border-radius:999px;background:rgba(34,197,94,.12);color:#bbf7d0;border:1px solid rgba(34,197,94,.35);padding:4px 8px;font-size:.78rem;font-weight:800}dialog{border:1px solid var(--line);border-radius:24px;background:var(--card);color:var(--text);padding:24px;max-width:420px;width:92vw}dialog::backdrop{background:rgba(0,0,0,.65)}.modal-actions{display:flex;justify-content:flex-end;gap:10px}.empty{color:var(--muted);border:1px dashed var(--line);border-radius:18px;padding:28px;text-align:center}@media(max-width:720px){.room-header,.meta{display:grid}.inline-form{grid-template-columns:1fr}.header-actions{justify-content:flex-start}.question{grid-template-columns:1fr}.votes{display:flex}}
   `;
 }
 
-function homeScript() {
+function homeScript(lang) {
   return `
+document.cookie='oq_lang='+encodeURIComponent('${lang}')+'; Path=/; Max-Age=15552000; SameSite=Lax; Secure';
 const createForm=document.getElementById('create-form');
 const accessForm=document.getElementById('access-form');
 createForm.addEventListener('submit',async e=>{e.preventDefault();const btn=createForm.querySelector('button');btn.disabled=true;try{const res=await fetch('/api/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({room_name:document.getElementById('room-name').value,room_id:document.getElementById('room-id').value,password:document.getElementById('room-password').value})});const data=await res.json();if(!data.success)throw new Error(data.error||'Failed');location.href=data.url;}catch(err){alert(err.message);}finally{btn.disabled=false;}});
@@ -501,17 +624,18 @@ accessForm.addEventListener('submit',e=>{e.preventDefault();const id=document.ge
 
 function roomScript() {
   return `
-let room=JSON.parse(document.getElementById('room-data').textContent);let polling=false;let timer=null;
+let room=JSON.parse(document.getElementById('room-data').textContent);let i18n=JSON.parse(document.getElementById('i18n-data').textContent);let polling=false;let timer=null;
 const questionsEl=document.getElementById('questions');const statusEl=document.getElementById('status');
+function t(key){return i18n[key]||key;}
 function esc(s){return String(s||'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
 function fmt(ts){return new Date((ts||0)*1000).toLocaleString();}
-function render(){questionsEl.innerHTML=room.questions.length?room.questions.map(q=>'<article class="question '+(q.answered?'answered':'')+'" data-id="'+esc(q.id)+'" style="border-left-color:'+(q.border_color||'#7c3aed')+'"><div class="votes"><button class="secondary vote" data-vote="upvote">▲</button><span class="vote-count">'+(q.votes||0)+'</span><button class="secondary vote" data-vote="downvote">▼</button></div><div><div>'+(q.answered?'<span class="answered-badge">Answered</span>':'')+'</div><div class="question-text">'+esc(q.text)+'</div><div class="meta"><span>'+fmt(q.timestamp)+'</span>'+(room.is_admin?'<span class="admin-controls"><button class="secondary admin" data-action="mark_answered">'+(q.answered?'Mark unanswered':'Mark answered')+'</button><input class="color" type="color" value="'+(q.border_color||'#7c3aed')+'" title="Color"/><button class="danger admin" data-action="delete_question">Delete</button></span>':'')+'</div></div></article>').join(''):'<div class="empty">No questions yet.</div>';}
-async function refresh(){if(document.hidden||polling)return;polling=true;try{const res=await fetch('/api/room?room_id='+encodeURIComponent(room.id)+'&t='+Date.now(),{cache:'no-store',credentials:'same-origin'});const data=await res.json();if(data.success){room=data.room;render();statusEl.textContent='Live';}else{statusEl.textContent=data.error||'Error';}}catch(e){statusEl.textContent='Offline';console.error(e);}finally{polling=false;}}
+function render(){questionsEl.innerHTML=room.questions.length?room.questions.map(q=>'<article class="question '+(q.answered?'answered':'')+'" data-id="'+esc(q.id)+'" style="border-left-color:'+(q.border_color||'#7c3aed')+'"><div class="votes"><button class="secondary vote" data-vote="upvote" aria-label="Upvote">▲</button><span class="vote-count">'+(q.votes||0)+'</span><button class="secondary vote" data-vote="downvote" aria-label="Downvote">▼</button></div><div><div>'+(q.answered?'<span class="answered-badge">'+esc(t('answered'))+'</span>':'')+'</div><div class="question-text">'+esc(q.text)+'</div><div class="meta"><span>'+fmt(q.timestamp)+'</span>'+(room.is_admin?'<span class="admin-controls"><button class="secondary admin" data-action="mark_answered">'+esc(q.answered?t('markUnanswered'):t('markAnswered'))+'</button><input class="color" type="color" value="'+(q.border_color||'#7c3aed')+'" title="'+esc(t('color'))+'"/><button class="danger admin" data-action="delete_question">'+esc(t('delete'))+'</button></span>':'')+'</div></div></article>').join(''):'<div class="empty">'+esc(t('noQuestions'))+'</div>';}
+async function refresh(){if(document.hidden||polling)return;polling=true;try{const res=await fetch('/api/room?room_id='+encodeURIComponent(room.id)+'&t='+Date.now(),{cache:'no-store',credentials:'same-origin'});const data=await res.json();if(data.success){room=data.room;render();statusEl.textContent=t('live');}else{statusEl.textContent=data.error||t('error');}}catch(e){statusEl.textContent=t('offline');console.error(e);}finally{polling=false;}}
 render();timer=setInterval(refresh,3000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
-document.getElementById('copy-link').addEventListener('click',async()=>{await navigator.clipboard.writeText(location.href);statusEl.textContent='Copied';});
-document.getElementById('question-form').addEventListener('submit',async e=>{e.preventDefault();const text=document.getElementById('question-text');const res=await fetch('/api/question',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({room_id:room.id,question:text.value})});const data=await res.json();if(data.success){text.value='';await refresh();}else alert(data.error||'Failed');});
-questionsEl.addEventListener('click',async e=>{const article=e.target.closest('.question');if(!article)return;const id=article.dataset.id;if(e.target.matches('.vote')){await fetch('/api/vote',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({room_id:room.id,question_id:id,vote_type:e.target.dataset.vote})});refresh();}if(e.target.matches('.admin')){const action=e.target.dataset.action;const payload={room_id:room.id,question_id:id,action};if(action==='mark_answered')payload.answered=!article.classList.contains('answered');if(action==='delete_question'&&!confirm('Delete this question?'))return;const res=await fetch('/api/admin/action',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify(payload)});const data=await res.json();if(!data.success)alert(data.error||'Failed');refresh();}});
+document.getElementById('copy-link').addEventListener('click',async()=>{await navigator.clipboard.writeText(location.href);statusEl.textContent=t('copied');});
+document.getElementById('question-form').addEventListener('submit',async e=>{e.preventDefault();const text=document.getElementById('question-text');const res=await fetch('/api/question',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({room_id:room.id,question:text.value})});const data=await res.json();if(data.success){text.value='';await refresh();}else alert(data.error||t('failed'));});
+questionsEl.addEventListener('click',async e=>{const article=e.target.closest('.question');if(!article)return;const id=article.dataset.id;if(e.target.matches('.vote')){await fetch('/api/vote',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({room_id:room.id,question_id:id,vote_type:e.target.dataset.vote})});refresh();}if(e.target.matches('.admin')){const action=e.target.dataset.action;const payload={room_id:room.id,question_id:id,action};if(action==='mark_answered')payload.answered=!article.classList.contains('answered');if(action==='delete_question'&&!confirm(t('deleteConfirm')))return;const res=await fetch('/api/admin/action',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify(payload)});const data=await res.json();if(!data.success)alert(data.error||t('failed'));refresh();}});
 questionsEl.addEventListener('change',async e=>{const article=e.target.closest('.question');if(!article||!e.target.matches('.color'))return;await fetch('/api/admin/action',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({room_id:room.id,question_id:article.dataset.id,action:'set_color',color:e.target.value})});refresh();});
-const open=document.getElementById('admin-login-open'),dialog=document.getElementById('admin-dialog');if(open)open.addEventListener('click',()=>dialog.showModal());document.getElementById('admin-cancel').addEventListener('click',()=>dialog.close());document.getElementById('admin-login-form').addEventListener('submit',async e=>{e.preventDefault();const res=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({room_id:room.id,password:document.getElementById('admin-password').value})});const data=await res.json();if(data.success)location.reload();else alert(data.error||'Invalid password');});
+const open=document.getElementById('admin-login-open'),dialog=document.getElementById('admin-dialog');if(open)open.addEventListener('click',()=>dialog.showModal());document.getElementById('admin-cancel').addEventListener('click',()=>dialog.close());document.getElementById('admin-login-form').addEventListener('submit',async e=>{e.preventDefault();const res=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({room_id:room.id,password:document.getElementById('admin-password').value})});const data=await res.json();if(data.success)location.reload();else alert(data.error||t('invalidPassword'));});
   `;
 }
