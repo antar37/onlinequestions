@@ -14,6 +14,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once 'room-manager.php';
+require_once 'admin-auth.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -43,10 +44,7 @@ if (is_array($result) && isset($result['error'])) {
     
     // If password was provided, automatically authenticate creator as admin
     if ($password) {
-        if (!isset($_SESSION['admin_rooms'])) {
-            $_SESSION['admin_rooms'] = [];
-        }
-        $_SESSION['admin_rooms'][$roomId] = true;
+        grantAdminAccess($roomId, true);
     }
     
     echo json_encode([

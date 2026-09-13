@@ -25,6 +25,7 @@ if (isset($_GET['lang']) && in_array($_GET['lang'], SUPPORTED_LANGS)) {
 
 // Include room manager functions (defines ROOMS_DIR and creates EVENTS_DIR if needed)
 require_once 'room-manager.php';
+require_once 'admin-auth.php';
 
 // Ensure rooms directory exists
 if (!file_exists(ROOMS_DIR)) {
@@ -63,10 +64,8 @@ $questions = $roomData['questions'] ?? [];
 $hasPassword = isset($roomData['password_hash']);
 $isAdmin = false;
 
-// Check if user is authenticated as admin
-if ($hasPassword && isset($_SESSION['admin_rooms'][$roomId])) {
-    $isAdmin = $_SESSION['admin_rooms'][$roomId] === true;
-}
+// Check if user is authenticated as admin through the active session or remember cookie
+$isAdmin = $hasPassword && isAdminAuthenticated($roomId);
 
 // Admin authentication is now handled on create-room.php page
 

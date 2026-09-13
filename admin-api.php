@@ -9,6 +9,7 @@ header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
 
 require_once 'room-manager.php';
+require_once 'admin-auth.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -18,20 +19,21 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $input = json_decode(file_get_contents('php://input'), true);
 
-if (!isset($input['room_id']) || !isset($input['password']) || !isset($input['action'])) {
+if (!isset($input['room_id']) || !isset($input['action'])) {
     http_response_code(400);
     echo json_encode(['success' => false, 'error' => 'Missing required fields']);
     exit;
 }
 
 $roomId = sanitizeRoomId($input['room_id']);
-$password = $input['password'];
 $action = $input['action'];
 
-// Verify password
-if (!verifyRoomPassword($roomId, $password)) {
+// Verify existing admin session/remember cookie, or a password included in the request.
+// This keeps admin actions working after page reloads without storing the raw password
+// in browser storage.
+if (!requireAdminAccessFromInput($roomId, $input)) {
     http_response_code(401);
-    echo json_encode(['success' => false, 'error' => 'Invalid password']);
+    echo json_encode(['success' => false, 'error' => 'Admin authentication required']);
     exit;
 }
 

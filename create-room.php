@@ -17,8 +17,9 @@ if (isset($_GET['lang']) && in_array($_GET['lang'], SUPPORTED_LANGS)) {
     exit;
 }
 
-// Include room manager functions (defines ROOMS_DIR and ROOM_ID_LENGTH)
+// Include room manager/auth functions (defines ROOMS_DIR and ROOM_ID_LENGTH)
 require_once 'room-manager.php';
+require_once 'admin-auth.php';
 
 // Handle room creation (via AJAX from modal)
 // This will be handled by the API endpoint
@@ -48,11 +49,7 @@ if (isset($_POST['admin_room_id']) && isset($_POST['admin_password'])) {
     $roomId = sanitizeRoomId($_POST['admin_room_id']);
     $password = $_POST['admin_password'];
     
-    if (verifyRoomPassword($roomId, $password)) {
-        if (!isset($_SESSION['admin_rooms'])) {
-            $_SESSION['admin_rooms'] = [];
-        }
-        $_SESSION['admin_rooms'][$roomId] = true;
+    if (authenticateAdminPassword($roomId, $password, true)) {
         header('Location: index.php?room=' . $roomId);
         exit;
     } else {
