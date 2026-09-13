@@ -15,3 +15,6 @@ Thumbs.db
 *.sublime-project
 *.sublime-workspace
 
+# Ignore Cloudflare local development state
+.wrangler/
+

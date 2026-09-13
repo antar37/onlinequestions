@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "onlinequestions",
+  "main": "cloudflare/worker.js",
+  "compatibility_date": "2026-09-13",
+  "workers_dev": true,
+  "kv_namespaces": [
+    {
+      "binding": "ONLINEQUESTIONS_ROOMS",
+      "id": "8a602d60f501406b8a82f83e6f69e253"
+    }
+  ]
+}

@@ -12,9 +12,32 @@ An anonymous online question system with room support. Based on Thorsten Thormä
 
 ## Requirements
 
+### PHP version
+
 - PHP 7.4 or higher
 - Apache web server with mod_rewrite enabled
 - Write permissions for the `rooms/` and `events/` directories
+
+### Cloudflare Worker version
+
+This repo also preserves a Cloudflare-compatible port in `cloudflare/worker.js`.
+The PHP app remains intact; the Worker version is a separate implementation that uses:
+
+- Cloudflare Workers for the backend and HTML UI
+- Cloudflare KV for room/question storage
+- HttpOnly cookies for anonymous users and remembered admin sessions
+
+Live Worker deployment:
+
+- `https://onlinequestions.alexblog.workers.dev`
+
+Deploy/update it with:
+
+```bash
+npx wrangler deploy
+```
+
+The Worker uses the KV namespace configured in `wrangler.jsonc` as `ONLINEQUESTIONS_ROOMS`.
 
 ## Installation on DreamHost
 
